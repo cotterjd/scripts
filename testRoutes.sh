@@ -8,8 +8,8 @@ fi
 
 checkRoute() {
 	url=$1/$2
-	if [ $(curl -so /dev/null -Iw "%{http_code}" $url) == 404 ]; then
-		sh testslackbot.sh "#web-site" $url " is returning a 404!"
+	if [ $(curl -so /dev/null -Iw "%{http_code}" $url) != 200 ]; then
+		bash /root/scripts/slackbot.sh "#web-site" "Something's wrong with this route: " $url 
 	fi 
 }
 
@@ -21,4 +21,4 @@ checkRoute $uri "blog"
 checkRoute $uri "dora"
 checkRoute $uri "apply"
 checkRoute $uri "contact"
-checkRoute $uri "foo"
+#checkRoute $uri "foo"
