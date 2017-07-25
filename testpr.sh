@@ -3,7 +3,11 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 dockerImage='254439280817.dkr.ecr.us-east-1.amazonaws.com/hoegg_website_prs:latest'
-let port=$(docker ps | wc -l)+8079
+if [[ $(docker ps | wc -l) < 3 ]]; then #no pr containers running
+	port=8081
+else
+	let port=$(docker ps -q | xargs docker inspect --format="{{.Name}}" $1 | grep -v "hoegg-site" | rev | cut -c-4 | rev | xargs echo $1 | cut -c-4)+1
+fi
 
 $(/root/.local/bin/aws ecr get-login) 
 trigger=$(docker pull $dockerImage | tail -n 1)
