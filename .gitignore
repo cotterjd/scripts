@@ -1,4 +1,3 @@
-run-as-cron
+manual_update.sh
+slackbot.sh
 slackpost.sh
-testslackbot.sh
-
