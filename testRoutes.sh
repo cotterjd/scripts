@@ -1,23 +1,36 @@
 #!/bin/bash
 
 uri=$1
+
 if [[ $uri == "" ]]; then
-	echo "no url given"
+	echo url required
 	exit 1
 fi
 
+errorCode=0
+
 checkRoute() {
 	url=$1/$2
-	if [ $(curl -so /dev/null -Iw "%{http_code}" $url) != 200 ]; then
-		bash /root/scripts/slackbot.sh "#web-site" "Something's wrong with this route: " $url 
-	fi 
+	http_code=$(curl -so /dev/null -Iw "%{http_code}" $url)
+	if [[ $http_code != 200 ]]; then
+		errorCode=1
+		if [[ !($url =~ .*localhost.*) ]]; then
+                  bash /root/scripts/slackbot.sh "#web-site" $url " returns " $http_code
+		  # TODO: rollback
+		else
+			echo $url returned $http_code
+		fi
+	fi
 }
 
 checkRoute $uri ""
-checkRoute $uri "about_us" 
-checkRoute $uri "what_we_offer"
-checkRoute $uri "careers"
-checkRoute $uri "blog"
-checkRoute $uri "apply"
-checkRoute $uri "contact"
+# TODO: find out why this route always returns 404 even tho it works
+#checkRoute $uri "support/reset"
 #checkRoute $uri "foo"
+
+if [[ $errorCode != 1 ]]; then
+	echo "all routes are good"
+fi
+
+exit $errorCode
+
